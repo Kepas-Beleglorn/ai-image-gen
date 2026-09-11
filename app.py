@@ -103,8 +103,8 @@ SAMPLERS = [
 ]
 SCHEDULERS = ["beta", "normal", "karras", "exponential", "sgm_uniform", "simple"]
 
-DEFAULT_WIDTH = 1280
-DEFAULT_HEIGHT = 2048
+DEFAULT_WIDTH = 512
+DEFAULT_HEIGHT = 512
 DEFAULT_TARGET_MP = 1.4
 MAX_WIDTH = 2048
 MAX_HEIGHT = 2048
