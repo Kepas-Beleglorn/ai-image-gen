@@ -42,6 +42,22 @@
       "description": "VERSION 3.0 UPDATE: This is basically a hybrid of v1.0 and v2.0. Much better skin details over v1.0 without going overboard like I did with v2.0. It has a great balance with both low and high resolutions.\n\nRank 8 (v1.0) - Trained on smooth skin with no texture details (not enough skin detail, especially at lower resolutions, small file size)\n\nRank 32 (v2.0) - Trained on highly detailed skin texture (too much skin detail, especially at higher resolutions, medium file size)\n\nRank 128 (v3.0 - This LoRA) - Trained on both V1/V2 datasets (balanced skin detail, good at all resolutions, large file size)\n\nThis is a big LoRA since I trained it at rank 128, but it is very powerful and effective even with less training steps compared to prior runs. It also continues to work very well at 1.00 strength when stacking with multiple LoRA's (even when combining with other LoRA's that directly modify the vagina, such as NSFW all-in-ones).\n\nI have done a LOT of training/testing with this concept in an attempt to perfect it, and this is the one LoRA checkpoint I keep coming back to since it works so well. So I figure I would share it. Enjoy!\n\n--------------------------------------------------\n\nVERSION 2.0 UPDATE: So far the #1 complaint about version 1.0 was that it created extremely smooth skin that lacked details (very plastic/3D looking). I have to admit, I had tunnel-vision when testing that LoRA and actually thought it looked fine. It's possible I did the same here, so you be sure to let me know so I can keep fine-tuning for future updates. I appreciate any feedback, even if it is negative, harsh, or just poking fun at how bad the LoRA is, lol.\n\nAnywho, I completely overhauled the original dataset images by meticulously feeding every single one of them through an AI image editor (I used Klein 9B KV with a few good skin-texture/realism detailing LoRA's). I dialed-in each image as best I could (and to match the style of the original as best as possible) and trained at rank 32 (instead of rank 8). I trained to 3,000 steps like V1, but I actually found the 2,000 step version was much better (probably less overfitting). And that is the one I am providing here. I may train well past 3,000 to see if anything improves, and if it does, I'll do a 2.x version update.\n\nThe quality difference between V1 and V2 is night as day in terms of skin detail, but it's still not perfect. I may have gone a little too far on the skin texture detailing, as things can sometimes look a bit wrinkly or dried out (or like the character has some kind of skin condition). But hey, at least it's better than smooth non-detailed skin, right? Plus you can always adjust it down or up or mess with the samplers/schedulers to get exactly what you want. Euler/simple is the most balanced and euler/beta amps up the skin details. And if you do 12 steps on the sampler (instead of 8), it will add even more skin textures/details (usually too much, but you be the judge of that).\n\nSo while V2 is a huge improvement on realism/skin detail compared to V1, it is still not at the level of Krea 2 base quality. Maybe that is impossible, I don't know. But I did a lot of A/B testing with my V2 LoRA and the Krea 2 base, and the skin detail/realism was decently close (at least to my eyes). But my LoRA definitely does reduce the level of overall detail compared a baseline Krea 2 sample. Clothes might not be as detailed, there will be less stuff in the backgrounds etc.\n\nGive it a try and let me know what you think. I've only done a very limited amount of testing (a few hundred images/prompts), so no doubt I am unaware of a lot of potential downsides (or maybe even some unknown upsides). Either way, for those who really hated that V1 was so smooth and lacked skin details, this should get a little bit closer to what you may want.\n\n\n--------------------------------------------------\n\nOriginal Post:\n\nKrea 2 is an incredible image model, and it's looking more and more like it will be the true successor to Stable Diffusion 1.5/SDXL in terms of mass adoption and post-release training (LoRA's, model finetunes, etc). But the base model and all the other LoRA's (so far) have only focused on the, uh.... roast beef sandwich aspect of the vagina. Lots of wrinkly meat folds (very pronounced inner vulvas). And if that's your thing, I got no beef with you.\n\nBut for me, I like a cleaner look. Smooth curvy lines that are proportionally plumped up to an aesthetically pleasing degree. Simple, basic, not complex.\n\nm99's Labiaplasty LoRA's are, IMO, the golden standard for innies, and I hope they eventually release something for Krea 2. But since training this model is surprisingly fast (and very effective), I thought I would give it a try myself. And I'm honestly shocked at how well this LoRA turned out (at least with the tests I've done so far).\n\nTraining Info:\n\nMy training dataset consisted entirely of synthetic images of women that I generated using m99's Labiaplasty LoRA with Stable Diffusion 1.5 (Cyberrealistic) and Flux.2 Klein 9B models. On all the images only the lower body (crotch/butt) were cropped/used, so there should be little (ideally none) influence on character faces/hair/body or even overall model styles or compositions.\n\nThis should stack with other LoRA's very well, though it will be diluted and will compete when stacking (especially if the other LoRA is also trained on vaginas), so adjust the strength of it and others accordingly to achieve a proper innie. From what I've tried with stacking, it almost always has a positive effect on the vagina even if it doesn't make it a true innie (plumping up the outer lips and reducing the overall inner vulva size). It's actually quite nice and allows for some great vaginal customization in this regard when combining with other vagina LoRA's or all-in-ones.\n\nUsage:\n\nI did not add a trigger word or any captions to this LoRA. To make it work, just enable and set the strength to whatever works best for you. It is trained at 1.00 strength. If stacking, you may need to adjust it higher (or adjust other LoRA's lower) to get the right results."
     },
     {
+      "id": 2775340,
+      "title": "Krea2 TextFusion Refusal-Reduction LoRA",
+      "url": "https://civitai.red/models/2775340/krea2-textfusion-refusal-reduction-lora?modelVersionId=3125118",
+      "download_url": "https://civitai.red/api/download/models/3125118?fileId=3005583",
+      "hf_filename": "Krea2_TextFusion_Refusal_Reduction.safetensors",
+      "category": "enhancer",
+      "tags": [
+        "refusal-reduction",
+        "uncensored",
+        "textfusion"
+      ],
+      "trigger_words": [],
+      "strength": "1",
+      "description": "Buy me a coffee :)\n\n# Krea2 TextFusion Refusal-Reduction LoRA\n\nThis is a dedicated rank-64 LoRA trained with one narrow objective: reduce Krea2’s learned refusal and restriction behavior while preserving as much of the base model’s existing visual knowledge and prompt behavior as possible.\n\nThis is not a concept, character, style, anatomy, or aesthetic LoRA. It was not trained to add new visual concepts, reproduce a training-image set, or impose a preferred look. Its training objective was exclusively to push the model away from refusal behavior so that concepts already represented within the base model are less likely to be suppressed during text conditioning.\n\n## What It Changes\n\nKrea2 receives multiple hidden-state taps from its Qwen-VL text encoder and processes them through TextFusion before sending the resulting conditioning into the image transformer. This LoRA applies learned low-rank residuals only to the attention and internal MLP projections within:\n\n- txtfusion.layerwise_blocks.0\n\n- txtfusion.layerwise_blocks.1\n\n- txtfusion.refiner_blocks.0\n\n- txtfusion.refiner_blocks.1\n\nThe release version deliberately contains no adapter for:\n\n- The TextFusion 1 × 12 tap projector\n\n- The external/general txtmlp\n\n- The image-transformer blocks or any other image-generation layers\n\n## How It Works\n\nThe base checkpoint is never overwritten. For every targeted linear layer, LoRA adds a learned rank-64 residual to the original weight during inference:\n\nW_effective = W_base + strength × ΔW\n\nThis changes how existing Qwen-VL text features are routed, gated, transported, and refined through TextFusion before they reach Krea2’s untouched image transformer. In other words, the LoRA is intended to improve access to visual knowledge already present in the base model, not inject a new concept or replace the model’s learned visual representations.\n\nThis release targets the specific TextFusion route isolated through layer-by-layer ablation instead of broadly amplifying activations or directly altering the projector.\n\n## Usage\n\nUse strength of \"1.00\"\n\nResponsibility and Output Disclaimer\n\nThis LoRA modifies the model’s text-conditioning behavior but does not determine, authorize, endorse, supervise, or control the images produced by individual users, prompts, workflows, checkpoints, samplers, or third-party software.\n\nGenerated outputs remain dependent on the base model, user-provided conditioning, inference configuration, and the surrounding generation pipeline. The author assumes no responsibility or liability for what users choose to generate, how generated material is used, or whether any output complies with applicable laws, platform rules, licensing terms, or third-party rights.\n\nUsers are solely responsible for their prompts, generated outputs, distribution decisions, and use of this LoRA."
+    },
+    {
       "id": 2772293,
       "title": "PornMaster Krea2 Age Slider",
       "url": "https://civitai.red/models/2772293/pornmaster-krea2-age-slider",
@@ -102,6 +118,23 @@
       "description": "Krea-2 V2:\n\nV2 is focused on stability, and on keeping the womans body unaffected in size. Most, if not all other Breast size slider will make every woman chubby when you increase breast size, but this LoRA will keep the rest of her body lean and almost unaffected, in both directions.\nIt behaves different with and without clothes. And with different LoRA combinations etc. But in general i would stay within these values:\nRange naked: -5 to 5\nRange with clothes: -5 to 8\n\nIf you want hyper, or have problems with large breasts getting a forced bra, use V1 and V2 combined at half strength.\nKrea-2 V1:\nRecommended range: -4 to 5\n\nZIT\n\nv1.1 is v1.0 merged 50/50 with a v2.0 candidate that i didnt think would live up to a v2.0 quality.\nPros of v1.1 is that is retains the original face, light and pose better. And therefor it can also be pushed to higher values.\nI also changed the name of the LoRA to \"Breast\" instead of \"Breasts\", both here in civ and the filename.\n\nRecommended range: -3.0 to 10.0\n\nAll my work is 100% free. The only thing that really matters to me is people leaving a review, good or bad. I will NEVER remove or block anyone for leaving a bad review, so don't be afraid to give me criticism.\n\nI'm stating this because when a creator blocks someone for leaving a bad review, that person can no longer see any of the creator's models, essentially muting their critics. This is something I'm highly critical of, and I believe it's a fundamental quality problem on this site."
     },
     {
+      "id": 2554586,
+      "title": "Real / Fake Breast Slider - (Krea2 + ZIT)",
+      "url": "https://civitai.red/models/2554586/real-fake-breast-slider-krea2-zit?modelVersionId=3192618",
+      "download_url": "https://civitai.red/api/download/models/3192618?fileId=3073398",
+      "hf_filename": "breast_fake_real_krea2_loraholic.safetensors",
+      "category": "slider",
+      "tags": [
+        "breasts",
+        "fake",
+        "real",
+        "implants"
+      ],
+      "trigger_words": [],
+      "strength": null,
+      "description": "Krea2:\n\nThis was a nightmare to make, since saggy breasts drags the image towards older and unatractive subjects, while fake breasts will add a tons of shiny skin, saturation etc. I did my best to keep these things under controll, but its not perfect at values outside the recommended range.\nIf you want to go extreme, i recommend using a higher value on the first sampler, and -4 / 4 on the refiner. That way you can push it colse to -8 / 8 with strong prompts.\nRecommended range: -5.0 to 5.0\nMax range (will impact the face): -8.0 to 8.0\nZIT:\n\nNot perfect. I made this a while ago, so the qualiry is probably not what you expect from my LoRAs.\nSame range as the Krea2 range.\n\nAll my work is 100% free. The only thing that really matters to me is people leaving a review, good or bad. I will NEVER remove or block anyone for leaving a bad review, so don't be afraid to give me criticism.\n\nI'm stating this because when a creator blocks someone for leaving a bad review, that person can no longer see any of the creator's models, essentially muting their critics. This is something I'm highly critical of, and I believe it's a fundamental quality problem on this site."
+    },
+    {
       "id": 2554559,
       "title": "Protruding Nipples Slider - (Krea2 + ZIT)",
       "url": "https://civitai.red/models/2554559/protruding-nipples-slider-krea2-zit?modelVersionId=3191856",
@@ -116,6 +149,216 @@
       "trigger_words": [],
       "strength": null,
       "description": "Krea2:\n\nAt high values like 4.0 and up they dont always look as good as i would like. But with good prompts and scenes this can produce some incedible breasts.\nCombines well with my Breast Size LoRA, but my not always good result combined with my areola size slider.\nRecommended range: -5.0 to 5.0\nMax range: It depends, but probably around -10.0 to 10.0\nZ-image:\n\nRecommended range is what i use in the sample image (tiny text at the bottom of the images)\n\nAll my work is 100% free. The only thing that really matters to me is people leaving a review, good or bad. I will NEVER remove or block anyone for leaving a bad review, so don't be afraid to give me criticism.\n\nI'm stating this because when a creator blocks someone for leaving a bad review, that person can no longer see any of the creator's models, essentially muting their critics. This is something I'm highly critical of, and I believe it's a fundamental quality problem on this site."
+    },
+    {
+      "id": 2775639,
+      "title": "PornMaster Krea2 Breasts Slider",
+      "url": "https://civitai.red/models/2775639/pornmaster-krea2-breasts-slider",
+      "download_url": "https://civitai.red/api/download/models/3125465?fileId=3005912",
+      "hf_filename": "PornMaster_Breasts_Slider_Krea2_V1.safetensors",
+      "category": "slider",
+      "tags": [
+        "breasts",
+        "size"
+      ],
+      "trigger_words": [
+        "Large breasts",
+        "Small breasts"
+      ],
+      "strength": null,
+      "description": "模型介紹為中英雙語，中文使用者可以關閉翻譯。\nPornMaster 色情大師-Krea2\n\n此lora無法直接生成乳房，必須使用包含nsfw的lora或檢查站。\n\n正面權重:乳房變大。\n\n負面權重:乳房變小。\n\nLora權重:+15 to -10，權重超過10以上可能會改變”角色lora”的面部特徵，最高可到達+20。\n\n添加乳房相關描述會有幫助。\n\n \n\nPositive weight: Breasts become larger.\n\nNegative weight: Breasts become smaller.\n\n \n\nThis Lora cannot generate breasts directly; a Lora with NSFW or a checkpoint must be used.\n\n \n\nLora weight: +15 to -10. Weights exceeding 10 may alter the facial features of the \"character Lora,\" reaching a maximum of +20.\n\n \n\nAdding breast-related descriptions will be helpful.\n\n我的其他檢查站和Lora。\nMy other checkpoints and Lora.\n\n--\n我已將模型上傳至runninghub。\nI have uploaded the model to runninghub.\n\nPornMaster_Breasts_Slider_Krea2_V1\n\nhttps://www.runninghub.ai/model/public/2076599526287671297/?inviteCode=rh-v1304\n\n不要問我如何安裝的問題與comfyui如何使用。\n\n客製化lora:我的Telegram ID:@iamddtla0620\n\n我的微信ID:iamddtla\n\n我的line ID:iamddtla\n\n時間寶貴，請直接說明來意，例如:訂製lora.\n\nDo not ask me questions about how to install it or how to use ComfyUI.\n\nCustomized lora: My Telegram ID: @iamddtla0620\n\nMy WeChat ID: iamddtla\n\nMy Line ID: iamddtla\n\nTime is precious, please state your intention directly, for example: customized LORA."
+    },
+    {
+      "id": 2769967,
+      "title": "PornMaster Krea2 Flat chest & Innie pussy",
+      "url": "https://civitai.red/models/2769967/pornmaster-krea2-flat-chest-and-innie-pussy?modelVersionId=3118444",
+      "download_url": "https://civitai.red/api/download/models/3118444?fileId=2998737",
+      "hf_filename": "PornMaster_Flat_chest_&_Innie_pussy_krea2_V1.safetensors",
+      "category": "anatomy",
+      "tags": [
+        "flat-chest",
+        "innie-pussy",
+        "small-breasts",
+        "female-genitals"
+      ],
+      "trigger_words": [
+        "her genitals were just a slit",
+        "she has small areolas",
+        "nipples visible.",
+        "she has no areolas. nipples visible.",
+        "and the extremely thin white panties clung tightly to her genitals",
+        "making their shape visible through them."
+      ],
+      "strength": null,
+      "description": "模型介紹為中英雙語，中文使用者可以關閉翻譯。\n\n當\"Flat chest \"加上\"Innie pussy\"生成圖片時，我的許多範例圖片無法被展示出來，已經被\"civitai\"自動的阻擋.\n\nWhen \"Flat chest\" is combined with \"Innie pussy\" to generate an image, many of my example images cannot be displayed because they are automatically blocked by \"civitai\".\n\n某些內褲或服裝，此lora也可以當\"駱駝趾\"使用.\n\nFor certain underwear or clothing, this lora can also be used as \"camel toe\".\n\nPornMaster 色情大師-Krea2\n\nLora權重:+1.4~+1.5。\n\nLora weight: +1.4~1.5.\n\n建議搭配我的Uncensored lora一起使用，即可降低此lora的權重。\n\n此lora如果與經由”合併的檢查站”一起使用時可能失去效果，因為他們所合併的lora可能會覆蓋掉”Flat chest”和”Innie pussy”的功能。\n\nFlat chest只有訓練裸照，沒有訓練穿衣服的照片。\n\n也有訓練其它乳房尺寸的照片。\n\n訓練中的大部分訓練的照片都沒有臉部。\n\nIt is recommended to use this together with my Uncensored LoRA, which allows you to reduce the weight of this LoRA.\n\nThis LoRA may lose its effectiveness when used together with a merged checkpoint, because the LoRAs merged into that checkpoint may override the \"Flat chest\" and \"Innie pussy\" features.\n\nThe Flat chest training only includes nude images and does not include images of clothed subjects.\n\nThere are also photos of training for other breast sizes.\n\nMost of the training images do not contain faces.\n\n我的其他檢查站和Lora。\nMy other checkpoints and Lora.\n\n--\n我已將模型上傳至runninghub。\nI have uploaded the model to runninghub.\n\nPornMaster_Flat_chest_&_Innie_pussy_krea2_V1\n\nhttps://www.runninghub.ai/model/public/2075826964388245506/?inviteCode=rh-v1304\n\n不要問我如何安裝的問題與comfyui如何使用。\n\n客製化lora:我的Telegram ID:@iamddtla0620\n\n我的微信ID:iamddtla\n\n我的line ID:iamddtla\n\n時間寶貴，請直接說明來意，例如:訂製lora.\n\nDo not ask me questions about how to install it or how to use ComfyUI.\n\nCustomized lora: My Telegram ID: @iamddtla0620\n\nMy WeChat ID: iamddtla\n\nMy Line ID: iamddtla\n\nTime is precious, please state your intention directly, for example: customized LORA."
+    },
+    {
+      "id": 2257360,
+      "title": "spread_pussy v2",
+      "url": "https://civitai.red/models/2257360/spreadpussy-v2?modelVersionId=3158874",
+      "download_url": "https://civitai.red/api/download/models/3158874?fileId=3039496",
+      "hf_filename": "Krea2 spread pussy.safetensors",
+      "category": "pose",
+      "tags": [
+        "pussy",
+        "spread",
+        "female-genitals"
+      ],
+      "trigger_words": [
+        "zitpussy",
+        "spread pussy",
+        "pussy",
+        "1girl",
+        "close-up",
+        "pubic hair",
+        "uncensored",
+        "solo",
+        "anus",
+        "realistic",
+        "female pubic hair",
+        "clitoris",
+        "photorealistic",
+        "clitoral hood",
+        "spread legs",
+        "urethra",
+        "nude",
+        "fingernails",
+        "ass",
+        "pink nails"
+      ],
+      "strength": "0.9",
+      "description": "Krea2 spread_pussy v2\n\nLora type:Krea2\n\ntrigger：zitpussy, spread pussy, 1girl, solo, pussy, anus, ass, uncensored, long hair, from behind, pubic hair, nail polish, brown hair, nude, bent over, female pubic hair, red nails, presenting, spread ass, ring, clitoris, urethra, ass focus, mole on ass\n\ngenarated checkpoint: moodyKrea2Mix_v40.safetensors\n\ntraining checkpoint: Krea 2 Raw\n\nrecommend strength: 0.9\n\nsampler name: ddim\n\nscheduler: sgm_uniform\n\n--\n\n适合Asian 的掰穴LORA，不是很稳定，需要多抽卡\n\nZIT spread_pussy v2（5-7-2026）\n\nLora type: ZIT\n\nprompt：zitpussy, realistic, pussy, 1girl, photorealistic, nipples, solo, spread pussy, uncensored, nude, clitoris, anus, breasts, pussy juice, pubic hair, spread legs, lips, on back, nail polish, looking at viewer, female pubic hair, brown eyes, lying, clitoral hood, brown hair, red nails\n\ngenarated checkpoint: z_image_turbo_bf16.safetensors\n\ntraining checkpoint: z_image_turbo_bf16.safetensors\n\nrecommend strength: 1\n\nsampler name: ddim\n\nscheduler: sgm_uniform\n\n-\n\nZIT spread_pussy\n\nLora type: ZIT\n\ntrigger：zitpussy, spread pussy, 1girl, nude, breasts, nipples, hetero, pussy, jewelry, blonde hair, realistic, ring, spread legs, solo focus, uncensored, blue eyes, anus, 1boy, medium breasts, smile, grin, lying, photorealistic, on back, watch\n\ngenarated checkpoint: z_image_turbo_bf16.safetensors\n\ntraining checkpoint: z_image_turbo_bf16.safetensors\n\nrecommend strength:1\n\ndenoise:1"
+    },
+    {
+      "id": 2617090,
+      "title": "Pubic Hair Slider & Body Hair Slider - (Krea2 + ZIT)",
+      "url": "https://civitai.red/models/2617090/pubic-hair-slider-and-body-hair-slider-krea2-zit?modelVersionId=3136749",
+      "download_url": "https://civitai.red/api/download/models/3136749?fileId=3016918",
+      "hf_filename": "pubes_krea2_loraholic.safetensors",
+      "category": "slider",
+      "tags": [
+        "pubic-hair",
+        "body-hair"
+      ],
+      "trigger_words": [],
+      "strength": null,
+      "description": "Krea2:\n\nI have made a completely new way of making slider LoRAs, witch allows me to create extremely potent and accurate Slider LoRAs. This is the very first test with my new methos. And i must say it exceeded my expectation by a lot. I have tried to make several pubic hair sliders for Krea2, but they allways seems to make the rest of the body get hairy as well. This also have this problem at high levels. But since its so potent at low levels its never a problem.\nYou should prompt pubic hair if you want it to kick in at around 1-2, but you can also leave everything up to the Slider and set it to 3-4 with a potential hairy body as well.\nAnd it is a Slider, even if its not used in the name on the samples. I forgot to write Slider when i made them.\nStr used on the samples are in the imges comments. I had some deactivated nodes, and i didnt notice until everything was uploaded.\nRecommended range PROMPTED: -2.0 to 2.0\nRecommended range NOT PROMPTED: -2.0 to 5.0\nZIT:\n\nNot the best work i have done. The hair gets a bit out or control to fast for what i would like.\nI have another version that i may release when i have tested it a bit more.\n\n\nThe Body Hair also affect the pubic hairs, but it spread to the whole body extremely fast.\n\nBody Hair also messes up the private parts pretty fast, so best used to to add body hair, or when Pubic Hair is to weak.\n\nRecommended range Pubic Hair -1.5 to 2.5\nRecommended range Body Hair -1.5 to 1.5\n\nAll my work is 100% free. The only thing that really matters to me is people leaving a review, good or bad. I will NEVER remove or block anyone for leaving a bad review, so don't be afraid to give me criticism.\n\nI'm stating this because when a creator blocks someone for leaving a bad review, that person can no longer see any of the creator's models, essentially muting their critics. This is something I'm highly critical of, and I believe it's a fundamental quality problem on this site."
+    },
+    {
+      "id": 2809783,
+      "title": "Krea2 - Uncut / Uncircumcised Penis",
+      "url": "https://civitai.red/models/2809783/krea2-uncut-uncircumcised-penis?modelVersionId=3168543",
+      "download_url": "https://civitai.red/api/download/models/3168543?fileId=3048970",
+      "hf_filename": "uncut_penis_v0.5_Krea2.safetensors",
+      "category": "anatomy",
+      "tags": [
+        "penis",
+        "uncut",
+        "foreskin",
+        "male-genitals"
+      ],
+      "trigger_words": [
+        "unc0ck"
+      ],
+      "strength": "1",
+      "description": "Trained on 30 images of uncut shlongs (erect, half erect) from different angles and with varying degrees of tip coverage. However, most of the results I get still show the head mostly uncovered. I’m releasing this as a version 0.5 for now because I only did very limited editing of the captions.\n\nWorks with men, trans women, futa, and pairs very well with the Loraholic penis sliders.\n\nYou can try it with or without the trigger word “un0ck”. It helps to describe if the penis is being seen form above, the side or below.\n\nValidation loss graph:"
+    },
+    {
+      "id": 2744200,
+      "title": "Hairy Pussy",
+      "url": "https://civitai.red/models/2744200/hairy-pussy?modelVersionId=3086526",
+      "download_url": "https://civitai.red/api/download/models/3086526?fileId=2965976",
+      "hf_filename": "Krea 2 - Hairy Pussy.safetensors",
+      "category": "anatomy",
+      "tags": [
+        "pussy",
+        "hairy",
+        "pubic-hair",
+        "female-genitals"
+      ],
+      "trigger_words": [
+        "she has a hairy pussy"
+      ],
+      "strength": null,
+      "description": "Trigger: She has a hairy pussy."
+    },
+    {
+      "id": 2822722,
+      "title": "Natural Body Hair: Krea2 Hairy",
+      "url": "https://civitai.red/models/2822722/natural-body-hair-krea2-hairy?modelVersionId=3199811",
+      "download_url": "https://civitai.red/api/download/models/3199811?fileId=3081042",
+      "hf_filename": "Krea2_Hairy_V2.safetensors",
+      "category": "anatomy",
+      "tags": [
+        "body-hair",
+        "hairy",
+        "natural",
+        "female"
+      ],
+      "trigger_words": [],
+      "strength": "1",
+      "description": "This lora adds realistic, natural body hair to female subjects across the entire body. This lora ensures a full-body \"hairy\" look by automatically adding hair to the arms, legs, armpits, thighs, belly, and vagina without needing extra keywords. It was trained not using faces and tried with character loras without issues.\n\nKey Features:\n\n    Full Coverage: No need to prompt for specific areas; it covers the limbs, torso, and pelvic region out of the box.\n\n    The \"Natural\" Boost: Use the keyword \"she's naturally hairy\" to emphasize the effect, particularly for a fuller, more lush belly area.\n\n    Versatility: Works perfectly as a standalone LoRA or stacked with other ones including character loras. .\n\nRecommended Settings:\n\n    Strength : 1.0 (Standard). Adjust lower (e.g., 0.5) for subtle fuzz; adjust higher (e.g., 1.2+) for thick, wild hair.\n\n    Stacking Tip: Pairs beautifully with a Realism LoRA at a strength of 0.75–0.85 to ground the hair in realistic textures.\n\n    Sampler: euler_ancestral\n\n    Scheduler: beta\n\nFeedback is welcome! If this lora gets good reception, I'll work on refining the hair density and variety.\n\nPixaroma workflows and nodes are used to generate the images, his new nodes and workflows are amazing and can be found in a link from this video:"
+    },
+    {
+      "id": 2796748,
+      "title": "Damp Armpit Hair / Hairy Sweaty Male Armpits / Long Curly Thick Wet Bushy Pits - Krea 2",
+      "url": "https://civitai.red/models/2796748/damp-armpit-hair-hairy-sweaty-male-armpits-long-curly-thick-wet-bushy-pits-krea-2?modelVersionId=3161349",
+      "download_url": "https://civitai.red/api/download/models/3161349?fileId=3041728",
+      "hf_filename": "Damp_Armpit_v1_Full_Krea2.safetensors",
+      "category": "anatomy",
+      "tags": [
+        "armpit-hair",
+        "damp",
+        "sweaty",
+        "male",
+        "body-hair"
+      ],
+      "trigger_words": [
+        "damp armpit"
+      ],
+      "strength": "1.4",
+      "description": "Krea 2 version.\nIf you need quite a little more hair on your generated armpits, or you would like more realism on hair wetness, this is the LoRa for it!\nRecommended strength is 1.4! + krea2filterbypass3 at 1.60\n\nWithout the filter bypass3 it won't give you good results.\n\nThe lora effect can be good from 0.4-1.6 as well depending on what level of the effect you want.\n\nThis is a quick and dirty trained LoRA with no captions except for \"damp armpit\". I classified my collection of a very specific type of male armpit hair that I like, hairy and damp/wet/sweaty. This was over 700 images.\n\nI classified them into 1,2,3,5 repeats depending on the quality (very subjectively chosen by me).\n\nTrained with my GUI of Musubi: https://github.com/diodiogod/musubi-tuner_simple_GUI\n\nKrea 2 trains really well and this turned out even better than my Flux Lora.\n\nMy first attempt at 256 resolution for two epochs worked really well. All further training was not better, even at 1024. Then I trained a whole new version at only 2048 for two epochs and I think that one was better...\n\nIt learned the concept, but using it with some other loras SOMETIMES gives quality/anatomy problems.\n\nSo I did a post training block analysis and saved it using my fork of https://github.com/diodiogod/comfyUI-Realtime-Lora. It fixed the problem and a bonus is that the lora will NOT kill your pose and composition. But it does produce less pronounced Damp Armpit effect. Check some of the comparisson XY plots.\n\nThe remerge used this blocks: 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.05, 1.00, 1.00, 1.00, 1.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.20\n\nSome observations:\n\n    Because of the lack of captions, the amount of bush on the armpit defaults to quite hairy and bushy.\n\n    The thick long hair wetness can bleed to other parts of the body, which can actually be a bonus. You can get damp leg hair, chest hair and ass hair.\n\nI recommend the full blocks one if using this lora alone or maybe with +1 other lora. Use the edited blocks one if you want to keep your original seed pose and use a bunch of loras."
+    },
+    {
+      "id": 2595562,
+      "title": "Flaccid Uncut Hairy Penis aka P00TSARA",
+      "url": "https://civitai.red/models/2595562/flaccid-uncut-hairy-penis-aka-p00tsara?modelVersionId=3119203",
+      "download_url": "https://civitai.red/api/download/models/3119203?fileId=2999475",
+      "hf_filename": "P00TSARA_KREA2_V1_000008000.safetensors",
+      "category": "anatomy",
+      "tags": [
+        "penis",
+        "flaccid",
+        "uncut",
+        "foreskin",
+        "hairy",
+        "male-genitals"
+      ],
+      "trigger_words": [
+        "uncut flaccid penis",
+        "POOTSARA"
+      ],
+      "strength": null,
+      "description": "I decided to port my WAN 2.2 14B LORA to FLUX KLEIN 9B.\n\nI think it performs OK although the usual KLEIN issues do persist.\n\nSeems to work well in edit mode.\n\nAs per original V1 this is mostly lighter complexions"
+    },
+    {
+      "id": 2605595,
+      "title": "[Krea2 / ZIT] Japanese Woman Face 01",
+      "url": "https://civitai.red/models/2605595/krea2-zit-japanese-woman-face-01?modelVersionId=3104311",
+      "download_url": "https://civitai.red/api/download/models/3104311?fileId=2984083",
+      "hf_filename": "krea2_JPwoman01_v01.safetensors",
+      "category": "style",
+      "tags": [
+        "japanese",
+        "face",
+        "woman",
+        "character"
+      ],
+      "trigger_words": [
+        "jpwmn01"
+      ],
+      "strength": "0.8",
+      "description": "Krea2 turbo\n\nUploaded as Version 0.1 for testing Krea2 LoRA generation.\nZ-Image turbo\n\nUploaded as Version 0.1 for testing ZIT LoRA generation. All sample images were generated using Z-Image Power Nodes, with FlashVSR used as the detail enhancer.\nUsage\n\n    Trigger word: jpwmn01\n\n    Recommended model strength: 1.0 (ZIT), 0.8 (Krea2)\n\n    CLIP/Text Encoder connection is not required.\n\nDisclaimer\n\n    This model is intended for creating the faces of fictional adult Japanese women.\n\n    This model does not depict any real person.\n\n    The creator assumes no responsibility for generated content or misuse of this model.\n\n    Users are solely responsible for the content they generate with this model.\n\nTraining Information\n\n    Trained with AI-Toolkit using 17 images for 600 steps on an RTX 3060.\n\n    This LoRA was trained as UNet-only. CLIP / Text Encoder training was disabled.\n\n私の初めてのLoRA作成は、こちらのYouTube動画を参考にしました。（日本人向け）\n\nダルトワ★TVさんありがとうございます。"
     }
   ]
 }
