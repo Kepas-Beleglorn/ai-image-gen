@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/ComfyUI.iml" filepath="$PROJECT_DIR$/.idea/ComfyUI.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/ai-image-gen.iml" filepath="$PROJECT_DIR$/.idea/ai-image-gen.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/comfyui-krea2edit.iml" filepath="$PROJECT_DIR$/.idea/comfyui-krea2edit.iml" />
     </modules>
   </component>
 </project>
