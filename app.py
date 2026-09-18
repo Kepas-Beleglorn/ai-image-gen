@@ -103,7 +103,7 @@ SAMPLERS = [
 ]
 SCHEDULERS = ["beta", "normal", "karras", "exponential", "sgm_uniform", "simple"]
 
-DEFAULT_WIDTH = 1280
+DEFAULT_WIDTH = 2048
 DEFAULT_HEIGHT = 2048
 DEFAULT_TARGET_MP = 1.4
 MAX_WIDTH = 2048
@@ -636,42 +636,106 @@ def _inject_edit(
 def _execute_workflow(workflow: dict[str, Any]) -> list[str]:
     import execution
     import server
+    import gc
+    import torch
+    import comfy.model_management as model_management
 
+    # Create a fresh event loop to prevent context leakage
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     server_instance = server.PromptServer(loop)
-    executor = execution.PromptExecutor(
-        server_instance,
-        cache_type=execution.CacheType.RAM_PRESSURE,
-        cache_args={"lru": 0, "ram": 2.0, "ram_inactive": 8.0},
-    )
-    prompt_id = str(uuid.uuid4())
-    save_id = _find_node(workflow, "SaveImage")
-    executor.execute(workflow, prompt_id, extra_data={}, execute_outputs=[save_id])
-    if not executor.success:
-        message = executor.status_messages[-1] if executor.status_messages else "ComfyUI execution failed"
-        raise RuntimeError(str(message))
-    paths: list[pathlib.Path] = []
-    for output in executor.history_result.get("outputs", {}).values():
-        for items in output.values():
-            if not isinstance(items, list):
-                continue
-            for item in items:
-                if not isinstance(item, dict) or not item.get("filename"):
-                    continue
-                base = OUTPUT if item.get("type", "output") == "output" else COMFY / item.get("type", "output")
-                candidate = base / item.get("subfolder", "") / item["filename"]
-                if candidate.exists():
-                    paths.append(candidate)
-    if not paths:
-        paths = sorted(
-            [pathlib.Path(item) for item in glob.glob(str(OUTPUT / "**" / "*.png"), recursive=True)],
-            key=lambda item: item.stat().st_mtime,
-            reverse=True,
+
+    try:
+        # FIX: Use CacheType.LRU but set 'lru' size to 0.
+        # This forces ComfyUI to treat the cache as full immediately,
+        # causing it to unload models after every single step.
+        executor = execution.PromptExecutor(
+            server_instance,
+            cache_type=execution.CacheType.LRU,
+            cache_args={"lru": 0, "ram": 0, "ram_inactive": 0}
         )
-    if not paths:
-        raise RuntimeError("ComfyUI finished without an output image")
-    return [str(path) for path in paths]
+
+        prompt_id = str(uuid.uuid4())
+        save_id = _find_node(workflow, "SaveImage")
+
+        # Execute the workflow
+        executor.execute(workflow, prompt_id, extra_data={}, execute_outputs=[save_id])
+
+        if not executor.success:
+            message = executor.status_messages[-1] if executor.status_messages else "ComfyUI execution failed"
+            raise RuntimeError(str(message))
+
+        # Collect output paths
+        paths: list[pathlib.Path] = []
+        for output in executor.history_result.get("outputs", {}).values():
+            for items in output.values():
+                if not isinstance(items, list):
+                    continue
+                for item in items:
+                    if not isinstance(item, dict) or not item.get("filename"):
+                        continue
+                    base = OUTPUT if item.get("type", "output") == "output" else COMFY / item.get("type", "output")
+                    candidate = base / item.get("subfolder", "") / item["filename"]
+                    if candidate.exists():
+                        paths.append(candidate)
+
+        if not paths:
+            paths = sorted(
+                [pathlib.Path(item) for item in glob.glob(str(OUTPUT / "**" / "*.png"), recursive=True)],
+                key=lambda item: item.stat().st_mtime,
+                reverse=True,
+            )
+
+        if not paths:
+            raise RuntimeError("ComfyUI finished without an output image")
+
+        return [str(path) for path in paths]
+
+    finally:
+        # --- AGGRESSIVE CLEANUP SEQUENCE ---
+
+        # 1. Explicitly tell ComfyUI to unload all models from VRAM/RAM
+        try:
+            model_management.unload_all_models()
+        except Exception:
+            pass
+
+            # 2. Clear ComfyUI's internal execution context (holds latents)
+        if hasattr(execution, 'current_execution_context'):
+            execution.current_execution_context = None
+
+        # 3. Clear any remaining model caches in the execution module
+        if hasattr(execution, 'cached_models'):
+            execution.cached_models = []
+        if hasattr(execution, 'current_cached_models'):
+            execution.current_cached_models = []
+
+        # 4. Force Python Garbage Collection (High priority)
+        gc.collect()
+
+        # 5. Aggressive PyTorch CUDA cleanup
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            try:
+                torch.cuda.ipc_collect()
+            except Exception:
+                pass
+            try:
+                torch.cuda.reset_peak_memory_stats()
+            except Exception:
+                pass
+
+        # 6. Close the event loop strictly
+        try:
+            pending = asyncio.all_tasks(loop)
+            for task in pending:
+                task.cancel()
+            loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+            loop.close()
+        except RuntimeError:
+            pass
+        except Exception:
+            pass
 
 
 def _prepare_runtime(
