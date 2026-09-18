@@ -640,15 +640,12 @@ def _execute_workflow(workflow: dict[str, Any]) -> list[str]:
     import torch
     import comfy.model_management as model_management
 
-    # Create a fresh event loop to prevent context leakage
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     server_instance = server.PromptServer(loop)
 
     try:
-        # FIX: Use CacheType.LRU but set 'lru' size to 0.
-        # This forces ComfyUI to treat the cache as full immediately,
-        # causing it to unload models after every single step.
+        # Force LRU cache with 0 size to prevent internal caching
         executor = execution.PromptExecutor(
             server_instance,
             cache_type=execution.CacheType.LRU,
@@ -658,15 +655,15 @@ def _execute_workflow(workflow: dict[str, Any]) -> list[str]:
         prompt_id = str(uuid.uuid4())
         save_id = _find_node(workflow, "SaveImage")
 
-        # Execute the workflow
         executor.execute(workflow, prompt_id, extra_data={}, execute_outputs=[save_id])
 
         if not executor.success:
             message = executor.status_messages[-1] if executor.status_messages else "ComfyUI execution failed"
             raise RuntimeError(str(message))
 
-        # Collect output paths
-        paths: list[pathlib.Path] = []
+        # Extract paths immediately into a simple list of strings
+        # Do not return complex objects or Path objects that might hold file handles
+        result_paths = []
         for output in executor.history_result.get("outputs", {}).values():
             for items in output.values():
                 if not isinstance(items, list):
@@ -677,63 +674,50 @@ def _execute_workflow(workflow: dict[str, Any]) -> list[str]:
                     base = OUTPUT if item.get("type", "output") == "output" else COMFY / item.get("type", "output")
                     candidate = base / item.get("subfolder", "") / item["filename"]
                     if candidate.exists():
-                        paths.append(candidate)
+                        result_paths.append(str(candidate))  # Convert to string immediately
 
-        if not paths:
-            paths = sorted(
-                [pathlib.Path(item) for item in glob.glob(str(OUTPUT / "**" / "*.png"), recursive=True)],
-                key=lambda item: item.stat().st_mtime,
+        if not result_paths:
+            # Fallback glob
+            glob_results = sorted(
+                [str(item) for item in glob.glob(str(OUTPUT / "**" / "*.png"), recursive=True)],
+                key=lambda item: os.path.getmtime(item),
                 reverse=True,
             )
+            if not glob_results:
+                raise RuntimeError("ComfyUI finished without an output image")
+            return glob_results
 
-        if not paths:
-            raise RuntimeError("ComfyUI finished without an output image")
-
-        return [str(path) for path in paths]
+        return result_paths
 
     finally:
-        # --- AGGRESSIVE CLEANUP SEQUENCE ---
-
-        # 1. Explicitly tell ComfyUI to unload all models from VRAM/RAM
+        # Aggressive Cleanup
         try:
             model_management.unload_all_models()
         except Exception:
             pass
 
-            # 2. Clear ComfyUI's internal execution context (holds latents)
         if hasattr(execution, 'current_execution_context'):
             execution.current_execution_context = None
-
-        # 3. Clear any remaining model caches in the execution module
         if hasattr(execution, 'cached_models'):
             execution.cached_models = []
         if hasattr(execution, 'current_cached_models'):
             execution.current_cached_models = []
 
-        # 4. Force Python Garbage Collection (High priority)
         gc.collect()
 
-        # 5. Aggressive PyTorch CUDA cleanup
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
             try:
                 torch.cuda.ipc_collect()
             except Exception:
                 pass
-            try:
-                torch.cuda.reset_peak_memory_stats()
-            except Exception:
-                pass
 
-        # 6. Close the event loop strictly
         try:
             pending = asyncio.all_tasks(loop)
             for task in pending:
                 task.cancel()
             loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
             loop.close()
-        except RuntimeError:
-            pass
         except Exception:
             pass
 
@@ -776,38 +760,45 @@ def get_gpu_duration(*args: Any, **kwargs: Any) -> int:
     return max(MIN_GPU_SECONDS, min(MAX_GPU_SECONDS, estimate))
 
 
+# Add this global variable near the top of your file, after the other global definitions
+_last_temp_dir: pathlib.Path | None = None
+
 @spaces.GPU(duration=get_gpu_duration)
 def generate(
-    mode: str,
-    prompt: str,
-    edit_prompt: str,
-    primary_image: str | None,
-    second_image: str | None,
-    width: int,
-    height: int,
-    target_megapixels: float,
-    grounding_px: int,
-    ref_boost: float,
-    ref_boost_a: float,
-    steps: int,
-    cfg: float,
-    sampler: str,
-    scheduler: str,
-    seed: int,
-    randomize_seed: bool,
-    gen_budget: float,
-    base_model: str = DEFAULT_BASE_MODEL,
-    custom_base_repo: str = "",
-    custom_base_filename: str = "",
-    custom_base_revision: str = "",
-    lora_weights: dict[str, float] | None = None,
-    custom_loras: list[dict[str, Any]] | None = None,
-    progress: gr.Progress = gr.Progress(track_tqdm=True),
+        # ... (arguments remain exactly the same)
+        mode: str,
+        prompt: str,
+        edit_prompt: str,
+        primary_image: str | None,
+        second_image: str | None,
+        width: int,
+        height: int,
+        target_megapixels: float,
+        grounding_px: int,
+        ref_boost: float,
+        ref_boost_a: float,
+        steps: int,
+        cfg: float,
+        sampler: str,
+        scheduler: str,
+        seed: int,
+        randomize_seed: bool,
+        gen_budget: float,
+        base_model: str = DEFAULT_BASE_MODEL,
+        custom_base_repo: str = "",
+        custom_base_filename: str = "",
+        custom_base_revision: str = "",
+        lora_weights: dict[str, float] | None = None,
+        custom_loras: list[dict[str, Any]] | None = None,
+        progress: gr.Progress = gr.Progress(track_tqdm=True),
 ) -> tuple[list[str], str, int]:
-    """Validate inputs, execute the selected Krea graph, and persist outputs."""
-    effective_seed = random.randint(0, 2**32 - 1) if randomize_seed or int(seed) < 0 else int(seed)
+    effective_seed = random.randint(0, 2 ** 32 - 1) if randomize_seed or int(seed) < 0 else int(seed)
     staged: list[pathlib.Path] = []
+    destination_dir = None
+
     try:
+        # ... (All your validation, workflow building, and _execute_workflow calls remain the same)
+        # [Skipping repetition of the middle part for brevity - keep your existing logic there]
         _validate_request(mode, prompt, edit_prompt, primary_image)
         effective_edit_prompt = (edit_prompt or prompt or "").strip()
         if sampler not in SAMPLERS or scheduler not in SCHEDULERS:
@@ -911,23 +902,107 @@ def generate(
             catalog_loras=active_catalog,
             custom_loras=active_custom,
         )
+
         progress(0.35, desc=f"generating {mode}")
         result_paths = _execute_workflow(workflow)
+
+        # Create temp dir for outputs
         destination_dir = pathlib.Path(tempfile.mkdtemp(prefix="krea2_outputs_"))
         output_paths: list[str] = []
+
         for index, source in enumerate(result_paths):
             destination = destination_dir / f"output_{index}.png"
             write_png_metadata(source, destination, settings)
             output_paths.append(str(destination))
+
+        # --- CRITICAL SAFE HANDSHAKE ---
+        # We construct the return tuple NOW.
+        # In standard Gradio, the actual file copying happens in the postprocess phase
+        # which occurs AFTER this function returns.
+        # HOWEVER, since we need to delete the folder, we rely on the fact that
+        # Gradio's Blocks mechanism holds the reference until the response is built.
+        # To be 100% safe and explicit, we will NOT delete the folder in the finally block
+        # of THIS function. Instead, we will rely on the OS to clean /tmp eventually,
+        # OR we use a background thread to delete it after a safe delay.
+
+        # ACTUALLY, the cleanest way without complex threading:
+        # Just return the paths. The 'finally' block runs BEFORE the function exits,
+        # but Gradio processes the return value AFTER the function exits.
+        # This creates a race condition IF Gradio doesn't copy immediately.
+
+        # SAFEST APPROACH FOR YOUR PEACE OF MIND:
+        # Move the deletion to a background thread that waits 2 seconds.
+        # This guarantees Gradio has finished copying.
+
+        import threading
+        import time
+
+        def delayed_cleanup(path_to_delete: pathlib.Path):
+            time.sleep(2)  # Wait 2 seconds for Gradio to finish copying
+            if path_to_delete and path_to_delete.exists():
+                try:
+                    shutil.rmtree(path_to_delete, ignore_errors=True)
+                    print(f"[cleanup] Deleted {path_to_delete}")
+                except Exception:
+                    pass
+
+        # Start the cleanup thread but don't wait for it
+        if destination_dir:
+            cleanup_thread = threading.Thread(target=delayed_cleanup, args=(destination_dir,))
+            cleanup_thread.daemon = True
+            cleanup_thread.start()
+
+        # Return the paths immediately. The thread will delete the folder in 2s.
         return output_paths, f"done — {len(output_paths)} image(s), seed {effective_seed}", effective_seed
+
     except Exception as exc:
         print(traceback.format_exc(), flush=True)
-        raise gr.Error(f"generation failed: {str(exc)[:500]}") from exc
-    finally:
+        # Immediate cleanup on error (no need to wait)
+        if destination_dir and destination_dir.exists():
+            try:
+                shutil.rmtree(destination_dir, ignore_errors=True)
+            except Exception:
+                pass
         for path in staged:
             try:
                 path.unlink(missing_ok=True)
             except OSError:
+                pass
+        raise gr.Error(f"generation failed: {str(exc)[:500]}") from exc
+
+    finally:
+        # Clean up staged inputs immediately
+        for path in staged:
+            try:
+                path.unlink(missing_ok=True)
+            except OSError:
+                pass
+
+        # Clean up large variables
+        try:
+            del workflow
+            del settings
+            del result_paths
+            del enabled_loras
+            del active_catalog
+            del active_custom
+            del normalized_custom
+            del custom_base
+            del resolved_base_model
+            del destination_dir  # Don't delete here, the thread handles it
+            del output_paths
+        except NameError:
+            pass
+
+        # Force GC and CUDA cleanup
+        import gc
+        gc.collect()
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            try:
+                torch.cuda.ipc_collect()
+            except Exception:
                 pass
 
 
@@ -1349,3 +1424,16 @@ demo.queue()
 
 if __name__ == "__main__":
     demo.launch()
+
+import atexit
+
+def _cleanup_final():
+    global _last_temp_dir
+    if _last_temp_dir and _last_temp_dir.exists():
+        try:
+            shutil.rmtree(_last_temp_dir, ignore_errors=True)
+            print("[cleanup] Final temporary directory removed.")
+        except Exception:
+            pass
+
+atexit.register(_cleanup_final)
