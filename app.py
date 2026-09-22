@@ -106,8 +106,10 @@ SCHEDULERS = ["beta", "normal", "karras", "exponential", "sgm_uniform", "simple"
 DEFAULT_WIDTH = 2048
 DEFAULT_HEIGHT = 2048
 DEFAULT_TARGET_MP = 1.4
-MAX_WIDTH = 2048
-MAX_HEIGHT = 2048
+MIN_WIDTH = 32
+MIN_HEIGHT =32
+MAX_WIDTH = 4096
+MAX_HEIGHT = 4096
 MAX_TARGET_MP = 4.0
 DEFAULT_GROUNDING = 768
 DEFAULT_REF_BOOST = 1.0
@@ -836,8 +838,8 @@ def generate(
             enabled_loras.append((_ensure_custom_lora(row), float(row["weight"])))
 
         if mode == "text2image":
-            width = max(512, min(MAX_WIDTH, int(width) // 64 * 64))
-            height = max(512, min(MAX_HEIGHT, int(height) // 64 * 64))
+            width = max(MIN_WIDTH, min(MAX_WIDTH, int(width) // 64 * 64))
+            height = max(MIN_HEIGHT, min(MAX_HEIGHT, int(height) // 64 * 64))
             workflow = _t2i_workflow(resolved_base_model)
         else:
             primary_name, width, height = _prepare_edit_image(primary_image, target_megapixels)
@@ -1106,8 +1108,8 @@ def create_ui() -> gr.Blocks:
                 edit_prompt = gr.Textbox(label="edit instruction", lines=3, visible=False, placeholder="recolor the jacket to matte black")
                 with gr.Column() as t2i_resolution:
                     with gr.Row():
-                        width = gr.Slider(512, MAX_WIDTH, value=DEFAULT_WIDTH, step=64, label="width")
-                        height = gr.Slider(512, MAX_HEIGHT, value=DEFAULT_HEIGHT, step=64, label="height")
+                        width = gr.Slider(MIN_WIDTH, MAX_WIDTH, value=DEFAULT_WIDTH, step=64, label="width")
+                        height = gr.Slider(MIN_HEIGHT, MAX_HEIGHT, value=DEFAULT_HEIGHT, step=64, label="height")
                 with gr.Column(visible=False) as edit_controls:
                     target_mp = gr.Slider(0.25, MAX_TARGET_MP, value=DEFAULT_TARGET_MP, step=0.05, label="target megapixels")
                     grounding = gr.Slider(384, 1536, value=DEFAULT_GROUNDING, step=32, label="grounding resolution")
