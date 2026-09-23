@@ -105,7 +105,7 @@ SCHEDULERS = ["beta", "normal", "karras", "exponential", "sgm_uniform", "simple"
 
 DEFAULT_WIDTH = 2048
 DEFAULT_HEIGHT = 2048
-DEFAULT_TARGET_MP = 1.4
+DEFAULT_TARGET_MP = 0.95
 MIN_WIDTH = 32
 MIN_HEIGHT =32
 MAX_WIDTH = 4096
